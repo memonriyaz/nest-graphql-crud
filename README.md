@@ -1,98 +1,176 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Nest GraphQL + MongoDB + React (Vite + Apollo)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project contains:
+- Backend: NestJS GraphQL API backed by MongoDB (Mongoose)
+- Frontend: React (Vite) with Apollo Client for a simple end‑user UI
+  - Users page with Create, List, Inline Edit, Delete
+  - Get User by ID form
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Directory structure
+- Backend/ — NestJS app (GraphQL at /graphql)
+- Frontend/ — React + Vite app (Apollo Client UI)
 
-## Description
+## Prerequisites
+- Node.js and npm
+- A MongoDB URI (Atlas or local)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Quick start
+1) Start the Backend (in a terminal)
+   - Set environment variables and run the dev server. 
+     ```
+     $env:MONGO_URI = "mongodb://localhost:27017/your_db_name"
+     $env:PORT = "3000"  # optional
+     npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Backend" run start:dev
+     ```
+   - GraphQL Playground: http://localhost:3000/graphql
 
-## Project setup
+2) Start the Frontend (in another terminal)
+   - Development server:
+     ```
+     npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Frontend" install
+     npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Frontend" run dev
+     ```
+   - Open the URL shown by Vite (default http://localhost:5173)
 
-```bash
-$ npm install
+## Backend details
+- Entry: `Backend/src/main.ts`
+  - CORS is enabled for development so the React app can call the API from another origin.
+- GraphQL setup: `Backend/src/app.module.ts`
+  - Auto-generates schema at `src/schema.gql`
+  - Playground and introspection are enabled
+- User module: `Backend/src/user/*`
+  - Queries:
+    - `getAllUsers: [User!]!`
+    - `getUser(id: String!): User`
+  - Mutations:
+    - `createUser(input: CreateUserInput!): User`
+    - `updateUser(input: UpdateUserInput!): User`
+    - `removeUser(id: String!): Boolean` (returns true on success)
+
+Environment variables
+- Required: `MONGO_URI`
+- Optional: `PORT` (defaults to 3000)
+
+Example to run backend with environment variables:
+```
+$env:MONGO_URI = "mongodb://localhost:27017/your_db_name"
+$env:PORT = "3000"
+npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Backend" run start:dev
 ```
 
-## Compile and run the project
+## Frontend details (React + Vite + Apollo)
+- Path: `Frontend/`
+- Dev server: `npm run dev`
+- Build: `npm run build`
+- Preview built app: `npm run preview`
 
-```bash
-# development
-$ npm run start
+Configure the GraphQL endpoint
+- Defaults to `http://localhost:3000/graphql`
+- Override via Vite env var in `Frontend/.env.local`:
+  ```
+  VITE_GRAPHQL_ENDPOINT=http://localhost:3000/graphql
+  ```
+- Restart `npm run dev` after changing environment variables.
 
-# watch mode
-$ npm run start:dev
+Features in the UI
+- Create User: form with `name`, `email`, `userRole`
+- List Users: table shows `_id`, `name`, `email`, `userRole`
+- Inline Edit: modify values in the table row and click Save
+- Delete: remove a user by clicking Delete
+- Get User by ID: enter an `_id` and fetch details
 
-# production mode
-$ npm run start:prod
-```
+## Example GraphQL operations
+- Get all users
+  ```graphql path=null start=null
+  query GetAllUsers {
+    getAllUsers {
+      _id
+      name
+      email
+      userRole
+    }
+  }
+  ```
 
-## Run tests
+- Get a user by ID
+  ```graphql path=null start=null
+  query GetUser($id: String!) {
+    getUser(id: $id) {
+      _id
+      name
+      email
+      userRole
+    }
+  }
+  ```
 
-```bash
-# unit tests
-$ npm run test
+- Create a user
+  ```graphql path=null start=null
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      _id
+      name
+      email
+      userRole
+    }
+  }
+  # Variables
+  # {
+  #   "input": { "name": "Jane", "email": "jane@example.com", "userRole": "User" }
+  # }
+  ```
 
-# e2e tests
-$ npm run test:e2e
+- Update a user
+  ```graphql path=null start=null
+  mutation UpdateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      _id
+      name
+      email
+      userRole
+    }
+  }
+  # Variables
+  # {
+  #   "input": { "_id": "<id>", "name": "Jane D" }
+  # }
+  ```
 
-# test coverage
-$ npm run test:cov
-```
+- Remove a user
+  ```graphql path=null start=null
+  mutation RemoveUser($id: String!) {
+    removeUser(id: $id)
+  }
+  ```
 
-## Deployment
+## Troubleshooting
+- CORS errors
+  - Ensure the backend was restarted after enabling CORS in `Backend/src/main.ts`.
+  - Verify the frontend origin (http://localhost:5173) is allowed; the dev config uses permissive CORS for development.
+- 404/Network errors
+  - Check `VITE_GRAPHQL_ENDPOINT` and that the backend is running on the expected port.
+- MongoDB connection errors
+  - Verify `MONGO_URI` and network access to your database.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Scripts reference
+- Install frontend deps:
+  ```
+  npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Frontend" install
+  ```
+- Run frontend dev server:
+  ```
+  npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Frontend" run dev
+  ```
+- Build frontend:
+  ```
+  npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Frontend" run build
+  ```
+- Preview frontend build:
+  ```
+  npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Frontend" run preview
+  ```
+- Run backend (dev):
+  ```
+  $env:MONGO_URI = "mongodb://localhost:27017/your_db_name"
+  npm --prefix "C:\Users\HP\Desktop\Edviron\nest\nest-graphql-mongo\Backend" run start:dev
+  ```
